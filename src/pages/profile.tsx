@@ -185,19 +185,7 @@ export default function Profile() {
 
         try {
             // Build the best possible address from profile data
-            const syncData: AddressData = {
-                full_name: profile.name || "Unknown",
-                phone: profile.phone || "",
-                address_line_1: profile.address || "",
-                address_line_2: "",
-                city: "",
-                state: "",
-                country: "India",
-                pincode: "",
-                address_type: "home",
-                is_default: 1,
-            };
-
+            
             // We need at minimum: full_name, phone, address_line_1, city, state, pincode
             // The profile might not have city/state/pincode. Open the form instead of silently failing.
          

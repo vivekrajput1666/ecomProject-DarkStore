@@ -4,7 +4,6 @@ import {
     getProducts,
     createProduct,
     updateProduct,
-    deleteProduct,
     type Product,
 } from "../api/productApi";
 
