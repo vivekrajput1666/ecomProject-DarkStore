@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getAllOrders, updateOrderStatus } from "../../api/orderApi";
+import { getProducts } from "../../api/productApi";
 
 interface Order {
   id: number;
   user_id: number;
   user_name?: string;
   email?: string;
-  total_amount: number;
+  total_amount: number | string;
   payment_method?: string;
   payment_status?: string;
   order_status: string;
@@ -16,10 +17,28 @@ interface Order {
 
 const AdminDashboard = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [totalProducts, setTotalProducts] = useState(0);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [error, setError] = useState("");
 
+
+
+  const loadProducts = async () => {
+  try {
+    const response = await getProducts();
+
+    if (response.success) {
+      setTotalProducts(
+        response.products?.length ??
+        response.data?.length ??
+        0
+      );
+    }
+  } catch (error) {
+    console.error("ADMIN PRODUCTS ERROR:", error);
+  }
+};
   // ======================================================
   // GET ALL ORDERS
   // ======================================================
@@ -58,6 +77,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     loadOrders();
+    loadProducts();
   }, []);
 
   // ======================================================
@@ -217,6 +237,16 @@ const AdminDashboard = () => {
       order.order_status === "cancel_requested"
   );
 
+  const totalRevenue = orders.reduce((total, order) => {
+  const paymentStatus = order.payment_status?.toLowerCase();
+
+  if (paymentStatus === "paid" || paymentStatus === "successful") {
+    return total + Number(order.total_amount || 0);
+  }
+
+  return total;
+}, 0);
+
   // ======================================================
   // UI
   // ======================================================
@@ -250,7 +280,7 @@ const AdminDashboard = () => {
           </p>
 
           <h2 className="text-3xl font-bold text-white mt-3">
-            0
+            {totalProducts}
           </h2>
 
           <p className="text-zinc-600 text-xs mt-2">
@@ -292,7 +322,9 @@ const AdminDashboard = () => {
           </p>
 
           <h2 className="text-3xl font-bold text-amber-400 mt-3">
-            ₹0
+            ₹{totalRevenue.toLocaleString("en-IN", {
+  maximumFractionDigits: 2,
+})}
           </h2>
 
           <p className="text-zinc-600 text-xs mt-2">
