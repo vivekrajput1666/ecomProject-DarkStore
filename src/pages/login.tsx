@@ -40,7 +40,7 @@ export default function Login() {
       }
 
       if (response.user?.role === 'admin') {
-        window.location.assign('/admin/dashboard');
+        navigate('/admin/dashboard');
         return;
       }
 
