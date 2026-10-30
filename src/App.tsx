@@ -13,6 +13,7 @@ import "./App.css";
 // Pages
 import Home from "./pages/home";
 import Login from "./pages/login";
+import ResetPassword from "./pages/reset-password";
 import Register from "./pages/register";
 import Products from "./pages/product";
 import ProductDetails from "./pages/product_details";
@@ -30,8 +31,7 @@ import AdminCategories from "./pages/admin/AdminCategories";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminUsers from "./pages/admin/AdminUsers";
 
-const BARE_ROUTES = ["/login", "/register"];
-
+const BARE_ROUTES = ["/login", "/register", "/reset-password"];
 function Layout({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation();
 
@@ -178,6 +178,11 @@ export default function App() {
               path="*"
               element={<NotFound />}
             />
+
+            <Route
+    path="/reset-password"
+    element={<ResetPassword />}
+/>
 
           </Routes>
         </Layout>
