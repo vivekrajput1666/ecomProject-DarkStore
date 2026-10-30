@@ -464,11 +464,23 @@ export default function Profile() {
                             </div>
                             <h2 className="text-white text-2xl font-bold">{profile.name}</h2>
                             <p className="text-zinc-500 text-sm mt-1">{profile.email}</p>
-                            <div className="mt-5 pt-5 border-t border-zinc-800">
-                                <span className="inline-flex items-center px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-400 text-xs uppercase tracking-wider">
-                                    {profile.role}
-                                </span>
-                            </div>
+                          <div className="mt-5 pt-5 border-t border-zinc-800">
+    <span className="inline-flex items-center px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-400 text-xs uppercase tracking-wider">
+        {profile.role}
+    </span>
+
+    {/* Admin Dashboard Button */}
+    {profile.role?.toLowerCase() === "admin" && (
+        <Link
+            to="/admin/dashboard"
+            className="mt-5 flex items-center justify-center gap-2 w-full bg-amber-400 hover:bg-amber-300 text-black font-bold px-4 py-3 rounded-lg transition-colors"
+        >
+            <span>⚡</span>
+            Go to Admin Dashboard
+            <span>→</span>
+        </Link>
+    )}
+</div>
                         </div>
                     </div>
 
