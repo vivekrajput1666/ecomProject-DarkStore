@@ -20,75 +20,84 @@ const AdminLayout = () => {
           </h1>
 
           {/* Navigation */}
-          <nav className="space-y-2">
+      <nav className="space-y-2">
+  <Link
+    to="/admin/dashboard"
+    className={`block px-4 py-3 rounded transition-colors ${
+      isActive("/admin/dashboard")
+        ? "bg-amber-400 text-black font-semibold"
+        : "text-zinc-300 hover:bg-zinc-800"
+    }`}
+  >
+    Dashboard
+  </Link>
 
-            <Link
-              to="/admin/dashboard"
-              className={`block px-4 py-3 rounded transition-colors ${
-                isActive("/admin/dashboard")
-                  ? "bg-amber-400 text-black font-semibold"
-                  : "text-zinc-300 hover:bg-zinc-800"
-              }`}
-            >
-              Dashboard
-            </Link>
+  <Link
+    to="/admin/products"
+    className={`block px-4 py-3 rounded transition-colors ${
+      isActive("/admin/products")
+        ? "bg-amber-400 text-black font-semibold"
+        : "text-zinc-300 hover:bg-zinc-800"
+    }`}
+  >
+    Products
+  </Link>
 
-            <Link
-              to="/admin/products"
-              className={`block px-4 py-3 rounded transition-colors ${
-                isActive("/admin/products")
-                  ? "bg-amber-400 text-black font-semibold"
-                  : "text-zinc-300 hover:bg-zinc-800"
-              }`}
-            >
-              Products
-            </Link>
+  <Link
+    to="/admin/categories"
+    className={`block px-4 py-3 rounded transition-colors ${
+      isActive("/admin/categories")
+        ? "bg-amber-400 text-black font-semibold"
+        : "text-zinc-300 hover:bg-zinc-800"
+    }`}
+  >
+    Categories
+  </Link>
 
-            <Link
-              to="/admin/categories"
-              className={`block px-4 py-3 rounded transition-colors ${
-                isActive("/admin/categories")
-                  ? "bg-amber-400 text-black font-semibold"
-                  : "text-zinc-300 hover:bg-zinc-800"
-              }`}
-            >
-              Categories
-            </Link>
+  <Link
+    to="/admin/orders"
+    className={`block px-4 py-3 rounded transition-colors ${
+      isActive("/admin/orders")
+        ? "bg-amber-400 text-black font-semibold"
+        : "text-zinc-300 hover:bg-zinc-800"
+    }`}
+  >
+    Orders
+  </Link>
 
-            <Link
-              to="/admin/orders"
-              className={`block px-4 py-3 rounded transition-colors ${
-                isActive("/admin/orders")
-                  ? "bg-amber-400 text-black font-semibold"
-                  : "text-zinc-300 hover:bg-zinc-800"
-              }`}
-            >
-              Orders
-            </Link>
+  <Link
+    to="/admin/users"
+    className={`block px-4 py-3 rounded transition-colors ${
+      isActive("/admin/users")
+        ? "bg-amber-400 text-black font-semibold"
+        : "text-zinc-300 hover:bg-zinc-800"
+    }`}
+  >
+    Users
+  </Link>
 
-            <Link
-              to="/admin/users"
-              className={`block px-4 py-3 rounded transition-colors ${
-                isActive("/admin/users")
-                  ? "bg-amber-400 text-black font-semibold"
-                  : "text-zinc-300 hover:bg-zinc-800"
-              }`}
-            >
-              Users
-            </Link>
+  <Link
+    to="/admin/reviews"
+    className={`block px-4 py-3 rounded transition-colors ${
+      isActive("/admin/reviews")
+        ? "bg-amber-400 text-black font-semibold"
+        : "text-zinc-300 hover:bg-zinc-800"
+    }`}
+  >
+    Reviews
+  </Link>
 
-            <Link
-              to="/admin/coupons"
-              className={`block px-4 py-3 rounded transition-colors ${
-                isActive("/admin/coupons")
-                  ? "bg-amber-400 text-black font-semibold"
-                  : "text-zinc-300 hover:bg-zinc-800"
-              }`}
-            >
-              Coupons
-            </Link>
-
-          </nav>
+  <Link
+    to="/admin/coupons"
+    className={`block px-4 py-3 rounded transition-colors ${
+      isActive("/admin/coupons")
+        ? "bg-amber-400 text-black font-semibold"
+        : "text-zinc-300 hover:bg-zinc-800"
+    }`}
+  >
+    Coupons
+  </Link>
+</nav>
 
           {/* Back to Store */}
           <div className="mt-10 pt-6 border-t border-zinc-800">

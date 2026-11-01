@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../components/context/CartContext';
 import { getProductById, getProducts } from '../api/productApi';
 import { getImagesByProductId } from '../api/productImgApi';
+import { getProductReviews, createReview } from '../api/reviewApi';
+import type { Review } from '../api/reviewApi';
 import type { Product } from '../components/services/productService';
 
 const getImageUrl = (value: any): string => {
@@ -103,33 +105,6 @@ function RelatedCard({ product }: { product: Product }) {
   );
 }
 
-const MOCK_REVIEWS = [
-  {
-    id: 1,
-    name: 'Elena V.',
-    rating: 5,
-    date: '2026-08-15',
-    comment:
-      'Absolutely stunning piece. The quality is unmatched — the fabric drapes perfectly and the construction feels extremely premium. Worth every cent.',
-  },
-  {
-    id: 2,
-    name: 'Marcus L.',
-    rating: 5,
-    date: '2026-08-02',
-    comment:
-      "I've bought from several luxury brands and this stands up. The attention to detail is remarkable. Shipping was faster than expected too.",
-  },
-  {
-    id: 3,
-    name: 'Sophie K.',
-    rating: 4,
-    date: '2026-07-22',
-    comment:
-      'Excellent item, fits true to size. The colour in real life is slightly deeper than in the photos, which I actually prefer. Highly recommend.',
-  },
-];
-
 export default function ProductDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -153,6 +128,60 @@ export default function ProductDetails() {
   >('description');
 
   const [addedFeedback, setAddedFeedback] = useState(false);
+
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewMessage, setReviewMessage] = useState('');
+  const [reviewError, setReviewError] = useState('');
+
+  const isLoggedIn = Boolean(localStorage.getItem('token'));
+
+  const fetchReviews = async () => {
+    if (!id) return;
+    try {
+      setReviewLoading(true);
+      const response = await getProductReviews(Number(id));
+      setReviews(response.reviews ?? []);
+    } catch (err) {
+      console.error('Failed to load reviews:', err);
+      setReviewError('Could not load reviews. Please try again.');
+    } finally {
+      setReviewLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReviews();
+  }, [id]);
+
+  const handleReviewSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!id) return;
+
+    setReviewSubmitting(true);
+    setReviewMessage('');
+    setReviewError('');
+    try {
+      await createReview({
+        product_id: Number(id),
+        rating: reviewRating,
+        comment: reviewComment.trim(),
+      });
+      setReviewComment('');
+      setReviewRating(5);
+      setReviewMessage('Review submitted! It will appear after approval.');
+      await fetchReviews();
+    } catch (err: any) {
+      setReviewError(
+        err?.response?.data?.message || 'Could not submit your review. Please try again.'
+      );
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -824,7 +853,7 @@ export default function ProductDetails() {
                 }`}
               >
                 {tab === 'reviews'
-                  ? `Reviews (${MOCK_REVIEWS.length})`
+                  ? `Reviews (${reviews.length})`
                   : tab.charAt(0).toUpperCase() +
                     tab.slice(1)}
               </button>
@@ -866,60 +895,82 @@ export default function ProductDetails() {
 
           {/* Reviews */}
           {activeTab === 'reviews' && (
-            <div className="space-y-5 max-w-2xl">
-
-              {MOCK_REVIEWS.map((review) => (
-                <div
-                  key={review.id}
-                  className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-5"
-                >
-
-                  <div className="flex items-center justify-between mb-3">
-
-                    <div className="flex items-center gap-3">
-
-                      <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-amber-400 font-bold text-xs">
-                        {review.name.charAt(0)}
+            <div className="max-w-2xl space-y-8">
+              <form
+                onSubmit={handleReviewSubmit}
+                className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-5 space-y-4"
+              >
+                <h3 className="text-white text-lg font-semibold">Write a review</h3>
+                {isLoggedIn ? (
+                  <>
+                    <div>
+                      <label className="block text-zinc-400 text-sm mb-2">Your rating</label>
+                      <div className="flex gap-1" role="radiogroup" aria-label="Rating">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setReviewRating(star)}
+                            aria-label={`${star} star${star > 1 ? 's' : ''}`}
+                            className={`text-2xl transition-colors ${star <= reviewRating ? 'text-amber-400' : 'text-zinc-700'}`}
+                          >★</button>
+                        ))}
                       </div>
+                    </div>
+                    <div>
+                      <label htmlFor="review-comment" className="block text-zinc-400 text-sm mb-2">Your comment</label>
+                      <textarea
+                        id="review-comment"
+                        value={reviewComment}
+                        onChange={(event) => setReviewComment(event.target.value)}
+                        maxLength={1000}
+                        rows={4}
+                        placeholder="Share your experience with this product..."
+                        className="w-full rounded-lg bg-zinc-950 border border-zinc-700 text-white p-3 text-sm focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+                    {reviewMessage && <p className="text-emerald-400 text-sm">{reviewMessage}</p>}
+                    {reviewError && <p className="text-red-400 text-sm">{reviewError}</p>}
+                    <button
+                      type="submit"
+                      disabled={reviewSubmitting}
+                      className="bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-black font-semibold px-5 py-2.5 rounded-lg text-sm"
+                    >
+                      {reviewSubmitting ? 'Submitting...' : 'Submit review'}
+                    </button>
+                  </>
+                ) : (
+                  <p className="text-zinc-400 text-sm">Please <Link to="/login" className="text-amber-400 hover:underline">log in</Link> to write a review.</p>
+                )}
+              </form>
 
-                      <div>
-                        <p className="text-white text-sm font-medium">
-                          {review.name}
-                        </p>
-
-                        <p className="text-zinc-600 text-xs">
-                          {review.date}
-                        </p>
+              {reviewLoading ? (
+                <p className="text-zinc-500 text-sm">Loading reviews...</p>
+              ) : reviews.length === 0 ? (
+                <p className="text-zinc-500 text-sm">No approved reviews yet. Be the first to review this product.</p>
+              ) : (
+                reviews.map((review) => (
+                  <article key={review.id} className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-5">
+                    <div className="flex items-start justify-between gap-4 mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-amber-400 font-bold text-xs">
+                          {(review.user_name || 'U').charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-white text-sm font-medium">{review.user_name || 'Customer'}</p>
+                          <p className="text-zinc-600 text-xs">{review.created_at ? new Date(review.created_at).toLocaleDateString() : ''}</p>
+                        </div>
                       </div>
-
+                      <div className="flex" aria-label={`${review.rating} out of 5 stars`}>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <span key={star} className={`text-sm ${star <= review.rating ? 'text-amber-400' : 'text-zinc-700'}`}>★</span>
+                        ))}
+                      </div>
                     </div>
-
-                    <div className="flex">
-                      {[1, 2, 3, 4, 5].map(
-                        (s) => (
-                          <span
-                            key={s}
-                            className={`text-sm ${
-                              s <= review.rating
-                                ? 'text-amber-400'
-                                : 'text-zinc-700'
-                            }`}
-                          >
-                            ★
-                          </span>
-                        )
-                      )}
-                    </div>
-
-                  </div>
-
-                  <p className="text-zinc-400 text-sm leading-relaxed">
-                    {review.comment}
-                  </p>
-
-                </div>
-              ))}
-
+                    {review.comment && <p className="text-zinc-400 text-sm leading-relaxed whitespace-pre-wrap">{review.comment}</p>}
+                  </article>
+                ))
+              )}
             </div>
           )}
 

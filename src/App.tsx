@@ -1,6 +1,7 @@
 import { Navigate, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "./components/context/AuthContext";
 import { CartProvider } from "./components/context/CartContext";
+import AdminReviews from "./pages/AdminReviews";
 
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 import AdminLayout from "./components/admin/AdminLayout";
@@ -30,7 +31,6 @@ import AdminCoupons from "./pages/adminCoupons";
 import AdminCategories from "./pages/admin/AdminCategories";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminUsers from "./pages/admin/AdminUsers";
-
 const BARE_ROUTES = ["/login", "/register", "/reset-password"];
 function Layout({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation();
@@ -73,6 +73,8 @@ export default function App() {
               path="/register"
               element={<Register />}
             />
+
+    
 
             {/* ================= SHOP ================= */}
 
@@ -137,7 +139,10 @@ export default function App() {
                   index
                   element={<Navigate to="/admin/dashboard" replace />}
                 />
-
+<Route
+  path="reviews"
+  element={<AdminReviews />}
+/>
                 <Route
                   path="dashboard"
                   element={<AdminDashboard />}
